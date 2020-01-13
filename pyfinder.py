@@ -38,7 +38,28 @@ if __name__ == "__main__":
     print()
 
     r0 , c0 = (int(v) for v in tuple(input("START (a,b): ").split(',')))
+
+    if(r0 < 0 or r0 >= mapRows or c0 < 0 or c0 >= mapCols):
+        print("ERROR start is out of bounds")
+        sys.exit(1)
+
+    if(fdata[r0][c0] == '#'):
+        print("ERROR start is not walkable")
+        sys.exit(1)
+
     r1 , c1 = (int(v) for v in tuple(input("END (a,b): ").split(',')))
+
+    if(r1 < 0 or r1 >= mapRows or c1 < 0 or c1 >= mapCols):
+        print("ERROR end is out of bounds")
+        sys.exit(1)
+
+    if(fdata[r1][c1] == '#'):
+        print("ERROR end is not walkable")
+        sys.exit(1)
+
+    if(r0 == r1 and c0 == c1):
+        print("ERROR start = end")
+        sys.exit(1)
 
     # DEBUG
     print("start {0},{1}".format(r0, c0))
