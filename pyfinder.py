@@ -1,13 +1,10 @@
 import astar
 import sys
 
-
 if __name__ == "__main__":
     if(len(sys.argv) != 2):
         print("USAGE: python {0} file.map".format(sys.argv[0]))
         sys.exit(1)
-
-    print("opening {0}\n".format(sys.argv[1]))
 
     f = open(sys.argv[1], 'r')
     fdata = f.readlines()
@@ -25,10 +22,6 @@ if __name__ == "__main__":
 
     mapCols = len(fdata[0])
 
-    # DEBUG
-    print("map size: {0}x{1}\n".format(mapRows, mapCols))
-
-    '''
     r0 , c0 = (int(v) for v in tuple(input("START (a,b): ").split(',')))
 
     if(r0 < 0 or r0 >= mapRows or c0 < 0 or c0 >= mapCols):
@@ -53,24 +46,13 @@ if __name__ == "__main__":
         print("ERROR start = goal")
         sys.exit(1)
 
-    # DEBUG
-    print("start {0},{1}".format(r0, c0))
-    print("goal {0},{1}".format(r1, c1))
-    '''
-
-    #start = (1, 1)
-    #goal = (4, 5)
-    #goal = (2, 5)
-    #goal = (2, 16)
-
-    start = (1, 2)
-    goal = (1, 10)
+    start = (r0, c0)
+    goal = (r1, c1)
 
     pf = astar.Pathfinder(fdata)
 
     path = pf.make_path(start, goal)
 
-    print(path)
     print()
 
     for r in range(mapRows):
@@ -84,3 +66,5 @@ if __name__ == "__main__":
                     print('.', end='')
             else:
                 print(fdata[r][c], end='')
+
+    print()
