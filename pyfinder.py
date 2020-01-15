@@ -6,11 +6,10 @@ if __name__ == "__main__":
         print("USAGE: python {0} file.map".format(sys.argv[0]))
         sys.exit(1)
 
-    f = open(sys.argv[1], 'r')
-    fdata = f.readlines()
-    f.close()
+    with open(sys.argv[1], 'r') as f:
+        fdata = f.readlines()
 
-    # DEBUG
+    # print map
     for line in fdata:
         print(line, end='')
     print()
@@ -22,6 +21,7 @@ if __name__ == "__main__":
 
     mapCols = len(fdata[0])
 
+    # ask user for START
     r0 , c0 = (int(v) for v in tuple(input("START (a,b): ").split(',')))
 
     if(r0 < 0 or r0 >= mapRows or c0 < 0 or c0 >= mapCols):
@@ -32,6 +32,7 @@ if __name__ == "__main__":
         print("ERROR start is not walkable")
         sys.exit(1)
 
+    # ask user for GOAL
     r1 , c1 = (int(v) for v in tuple(input("GOAL (a,b): ").split(',')))
 
     if(r1 < 0 or r1 >= mapRows or c1 < 0 or c1 >= mapCols):
@@ -49,12 +50,13 @@ if __name__ == "__main__":
     start = (r0, c0)
     goal = (r1, c1)
 
+    # find path
     pf = astar.Pathfinder(fdata)
-
     path = pf.make_path(start, goal)
 
     print()
 
+    # print map with path
     for r in range(mapRows):
         for c in range(mapCols):
             if((r, c) in path):
