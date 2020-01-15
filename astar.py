@@ -61,10 +61,22 @@ class Pathfinder:
         self.openList = []
         self.openMap = dict()
         self.closedMap = dict()
-        self.start = ()
         self.goal = ()
-        self.costHori = 10
-        self.costDiag = 14
+        self.costHor = 10
+        self.costDia = 14
+
+    def add_to_open(self, node, idx):
+        """Add a node to the open list.
+
+        Parameters
+        ----------
+        node : Node
+            node to add to the open list
+        idx : int
+            unique index of the node in the map
+        """
+        heapq.heappush(self.openList, node)
+        self.openMap[idx] = node
 
     def cell_index(self, r, c):
         """Get the index of a cell from its row and col.
@@ -83,7 +95,7 @@ class Pathfinder:
         """
         return r * self.mapCols + c
 
-    def adj_cost(self, dr, dc):
+    def cost_to_adj(self, dr, dc):
         """Compute the cost of moving to an adjacent cell.
 
         Parameters
@@ -98,35 +110,36 @@ class Pathfinder:
         int
             cost of movement to the next cell
         """
-        if(abs(dr) == 1 and abs(dc) == 1):
-            return self.costDiag
+        # if both deltas are 1 it's a diagonal cell
+        if((abs(dr) + abs(dc)) == 2 ):
+            return self.costDia
         else:
-            return self.costHori
+            return self.costHor
 
-    def dist_H(self, a, b):
-        """Compute the approximated cost of moving from once cell to another using the Manhattan distance heuristic.
+    def cost_to_goal(self, src):
+        """Compute the approximated cost of moving from src cell to the goal using the Manhattan distance heuristic.
 
         Parameters
         ----------
-        a : tuple
-            row,col of the first cell
-        b : tuple
-            row,col of the second cell
+        src : tuple
+            row,col of the current cell
 
         Returns
         -------
         int
             approximated cost of movement to the goal cell
         """
-        r0, c0 = a
-        r1, c1 = b
-        return (abs(r0 - r1) + abs(c0 - c1)) * self.costHori
+        r0, c0 = src
+        r1, c1 = self.goal
+        return (abs(r0 - r1) + abs(c0 - c1)) * self.costHor
 
     def handle_node(self, prev, dr, dc):
         """Generate and process a neighbor node.
 
         Parameters
         ----------
+        prev : Node
+            predecessor node in the path, potentially its parent
         dr : int
             row delta, used to define the row of the new node. It can be -1, 0, 1
         dc : int
@@ -149,24 +162,23 @@ class Pathfinder:
         if(adjIdx in self.closedMap):
             return
 
-        adjG = self.adj_cost(dr, dc) + prev.g
-        adjH = self.dist_H((r, c), self.goal)
+        adjG = self.cost_to_adj(dr, dc) + prev.g
+        adjH = self.cost_to_goal((r, c))
 
         # in open list
         if(adjIdx in self.openMap):
             old = self.openMap[adjIdx]
 
+            # new path has a better cost
             if(old.g > adjG):
                 old.set_costs(adjG, adjH)
-                heapq.heapify(self.openList)
                 old.parent = prev
+                heapq.heapify(self.openList)
 
         # new node
         else:
             adj =  Node(r, c, adjG, adjH, prev)
-
-            heapq.heappush(self.openList, adj)
-            self.openMap[adjIdx] = adj
+            self.add_to_open(adj, adjIdx)
 
     def make_path(self, start, goal):
         """Implementation of the A* search.
@@ -186,21 +198,19 @@ class Pathfinder:
         r0, c0 = start
         r1, c1 = goal
 
-        self.start = start
         self.goal = goal
 
-        s = Node(r0, c0, 0, self.dist_H(start, goal))
-
         self.openList = []
-        heapq.heappush(self.openList, s)
-
         self.openMap.clear()
-        self.openMap[self.cell_index(r0, c0)] = s
-
         self.closedMap.clear()
 
         path = []
 
+        # add start node to the open list
+        s = Node(r0, c0, 0, self.cost_to_goal(start))
+        self.add_to_open(s, self.cell_index(r0, c0))
+
+        # process nodes in the open list
         while(len(self.openList) > 0):
             curr = heapq.heappop(self.openList)
             currIdx = self.cell_index(curr.r, curr.c)
@@ -214,6 +224,7 @@ class Pathfinder:
                     path.append((curr.r, curr.c))
                     curr = curr.parent
 
+                # add start node
                 path.append((curr.r, curr.c))
 
                 path.reverse()
@@ -233,9 +244,3 @@ class Pathfinder:
             self.handle_node(curr, 1, 1)
 
         return path
-
-
-
-
-
-
