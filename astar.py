@@ -198,6 +198,26 @@ class Pathfinder:
         r0, c0 = start
         r1, c1 = goal
 
+        # start out of bounds
+        if(r0 < 0 or r0 >= self.mapRows or c0 < 0 or c0 >= self.mapCols):
+            raise OutOfBoundsError(start)
+
+        # goal out of bounds
+        if(r1 < 0 or r1 >= self.mapRows or c1 < 0 or c1 >= self.mapCols):
+            raise OutOfBoundsError(goal)
+
+        # start is unwalkable
+        if(self.map[r0][c0] == '#'):
+            raise UnwalkableError(start)
+
+        # goal is unwalkable
+        if(self.map[r1][c1] == '#'):
+            raise UnwalkableError(goal)
+
+        # start == goal
+        if(start == goal):
+            raise SameStartGoalError(start)
+
         self.goal = goal
 
         self.openList = []
@@ -244,3 +264,48 @@ class Pathfinder:
             self.handle_node(curr, 1, 1)
 
         return path
+
+class OutOfBoundsError(Exception):
+    """Exception raised when start or goal are outside the map."""
+
+    def __init__(self, cell):
+        """
+        Parameters
+        ----------
+        cell : tuple
+            row,col of the cell generating the error
+        """
+        self.cell = cell
+
+    def __str__(self):
+        return "Out of bound cell: {}".format(self.cell)
+
+class UnwalkableError(Exception):
+    """Exception raised when start or goal cells are unwalkable"""
+
+    def __init__(self, cell):
+        """
+        Parameters
+        ----------
+        cell : tuple
+            row,col of the cell generating the error
+        """
+        self.cell = cell
+
+    def __str__(self):
+        return "Unwalkable cell: {}".format(self.cell)
+
+class SameStartGoalError(Exception):
+    """Exception raised when start or goal cells are the same"""
+
+    def __init__(self, cell):
+        """
+        Parameters
+        ----------
+        cell : tuple
+            row,col of the cell generating the error
+        """
+        self.cell = cell
+
+    def __str__(self):
+        return "Same start and goal cell: {}".format(self.cell)
