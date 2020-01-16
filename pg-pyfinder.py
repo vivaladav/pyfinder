@@ -62,7 +62,7 @@ if __name__ == "__main__":
     INCELL_SIZE = CELL_SIZE - (BORDER_SIZE * 2)
 
     COLOR_BG = (33, 33, 33)
-    COLOR_WALK = (242, 242, 242)
+    COLOR_WALK = (230, 230, 230)
     COLOR_UNWALK = (99, 99, 99)
     COLOR_START = (128, 216, 255)
     COLOR_GOAL = (105, 240, 174)
@@ -101,6 +101,7 @@ if __name__ == "__main__":
     pf = astar.Pathfinder(map)
 
     pathIdx = -1
+    animating = False
     animCounter = 0
     FRAMES_TO_SKIP = 4
 
@@ -112,6 +113,10 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             # mouse click
             if event.type == pygame.MOUSEBUTTONUP:
+                # do not process more input during animation
+                if animating:
+                    continue
+
                 if event.button == 1:
                     posX = event.pos[0]
                     posY = event.pos[1]
@@ -146,6 +151,7 @@ if __name__ == "__main__":
                             try:
                                 path = pf.make_path(start, goal)
                                 pathIdx = 1
+                                animating = True
                             except:
                                 print("ERROR")
                         else:
@@ -180,20 +186,23 @@ if __name__ == "__main__":
                     running = False
 
         # render
-        if pathIdx > 0 and pathIdx < (len(path) - 1):
-            if animCounter == FRAMES_TO_SKIP:
-                cell = path[pathIdx]
+        if animating:
+            if pathIdx > 0 and pathIdx < (len(path) - 1):
+                if animCounter == FRAMES_TO_SKIP:
+                    cell = path[pathIdx]
 
-                cellX = mapX0 + (cell[1] * CELL_SIZE) + BORDER_SIZE
-                cellY = mapY0 + (cell[0] * CELL_SIZE) + BORDER_SIZE
+                    cellX = mapX0 + (cell[1] * CELL_SIZE) + BORDER_SIZE
+                    cellY = mapY0 + (cell[0] * CELL_SIZE) + BORDER_SIZE
 
-                win.fill(COLOR_PATH, (cellX, cellY, INCELL_SIZE, INCELL_SIZE))
-                pygame.display.flip()
+                    win.fill(COLOR_PATH, (cellX, cellY, INCELL_SIZE, INCELL_SIZE))
+                    pygame.display.flip()
 
-                pathIdx += 1
-                animCounter = 0
+                    pathIdx += 1
+                    animCounter = 0
+                else:
+                    animCounter += 1
             else:
-                animCounter += 1
+                animating = False
 
         # frame delay
         pygame.time.wait(30)
