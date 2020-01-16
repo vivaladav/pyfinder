@@ -7,22 +7,34 @@ if __name__ == "__main__":
         print("USAGE: python {0} file.map".format(sys.argv[0]))
         sys.exit(1)
 
-    # read map
+    # read map file
     with open(sys.argv[1], 'r') as f:
         fdata = f.readlines()
 
-    map = []
-    for line in fdata:
-        # strip '\n' at the end
-        map.append(line[0 : len(line) -1])
+    # convert map file to usable format
+    # 1 = walkable cell
+    # 0 = unwalkable cell
+    fRows = len(fdata)
 
-    # get size of map
-    mapRows = len(map)
-
-    if(mapRows == 0):
+    if(fRows == 0):
         print("ERROR empty map")
         sys.exit(1)
 
+    # skip last column of '\n'
+    fCols = len(fdata[0]) - 1
+
+    map = []
+
+    for r in range(fRows):
+        map.append([1] * fCols)
+
+    for r in range(fRows):
+        for c in range(fCols):
+            if(fdata[r][c] == '#'):
+                map[r][c] = 0
+
+    # get size of map
+    mapRows = len(map)
     mapCols = len(map[0])
 
     # set up pygame
@@ -60,9 +72,9 @@ if __name__ == "__main__":
 
             col = (255, 0, 255)
 
-            if(map[r][c] == ' '):
+            if(map[r][c] == 1):
                 col = WALK_COLOR
-            elif(map[r][c] == '#'):
+            elif(map[r][c] == 0):
                 col = UNWALK_COLOR
 
             win.fill(col, (cellX, cellY, INCELL_SIZE, INCELL_SIZE))
