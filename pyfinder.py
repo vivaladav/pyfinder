@@ -14,12 +14,31 @@ if __name__ == "__main__":
         print(line, end='')
     print()
 
-    mapRows = len(fdata)
-    if(mapRows == 0):
+    # convert map file to usable format
+    # 1 = walkable cell
+    # 0 = unwalkable cell
+    fRows = len(fdata)
+
+    if(fRows == 0):
         print("ERROR empty map")
         sys.exit(1)
 
-    mapCols = len(fdata[0])
+    # skip last column of '\n'
+    fCols = len(fdata[0]) - 1
+
+    map = []
+
+    for r in range(fRows):
+        map.append([1] * fCols)
+
+    for r in range(fRows):
+        for c in range(fCols):
+            if(fdata[r][c] == '#'):
+                map[r][c] = 0
+
+    # get size of map
+    mapRows = len(map)
+    mapCols = len(map[0])
 
     # ask user for START
     r0 , c0 = (int(v) for v in tuple(input("START (a,b): ").split(',')))
@@ -33,7 +52,7 @@ if __name__ == "__main__":
     print()
 
     # find path
-    pf = astar.Pathfinder(fdata)
+    pf = astar.Pathfinder(map)
 
     try:
         path = pf.make_path(start, goal)
@@ -63,6 +82,10 @@ if __name__ == "__main__":
                 else:
                     print('.', end='')
             else:
-                print(fdata[r][c], end='')
+                if map[r][c] == 1:
+                    print(' ', end='')
+                else:
+                    print('#', end='')
+        print('\n', end='')
 
     print()

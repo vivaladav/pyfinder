@@ -153,7 +153,7 @@ class Pathfinder:
             return
 
         # not walkable
-        if(self.map[r][c] == '#'):
+        if(self.map[r][c] == 0):
             return
 
         adjIdx = self.cell_index(r, c)
@@ -207,11 +207,11 @@ class Pathfinder:
             raise OutOfBoundsError(goal)
 
         # start is unwalkable
-        if(self.map[r0][c0] == '#'):
+        if(self.map[r0][c0] == 0):
             raise UnwalkableError(start)
 
         # goal is unwalkable
-        if(self.map[r1][c1] == '#'):
+        if(self.map[r1][c1] == 0):
             raise UnwalkableError(goal)
 
         # start == goal
