@@ -3,8 +3,10 @@ import pygame
 import sys
 
 if __name__ == "__main__":
-    if(len(sys.argv) != 2):
-        print("USAGE: python {0} file.map".format(sys.argv[0]))
+    argc = len(sys.argv)
+
+    if argc != 2 and argc != 3:
+        print("USAGE: python {0} file.map [CELL_SIZE]".format(sys.argv[0]))
         sys.exit(1)
 
     # read map file
@@ -52,6 +54,10 @@ if __name__ == "__main__":
 
     # render map
     CELL_SIZE = 30
+    if argc == 3:
+        CELL_SIZE = int(sys.argv[2])
+    print("Cell size: {0}x{1}".format(CELL_SIZE, CELL_SIZE))
+
     BORDER_SIZE = 1
     INCELL_SIZE = CELL_SIZE - (BORDER_SIZE * 2)
 
