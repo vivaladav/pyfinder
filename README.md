@@ -22,7 +22,7 @@ Done
 A visual application based on pygame.
 
 #### Current status
-TODO
+under development
 
 ### qt-pyfinder.py
 A visual application based on Qt for Python.
