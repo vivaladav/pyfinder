@@ -67,6 +67,10 @@ if __name__ == "__main__":
         print("ERROR - {}".format(err))
         exit(1)
 
+    if len(path) == 0:
+        print("NO PATH FOUND")
+        exit(0)
+
     # print map with path
     pathStart = path[0]
     pathGoal = path[len(path) - 1]
