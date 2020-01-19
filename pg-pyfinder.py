@@ -64,9 +64,10 @@ if __name__ == "__main__":
     COLOR_BG = (33, 33, 33)
     COLOR_WALK = (230, 230, 230)
     COLOR_UNWALK = (99, 99, 99)
-    COLOR_START = (128, 216, 255)
-    COLOR_GOAL = (105, 240, 174)
+    COLOR_START = (41, 182, 246)
+    COLOR_GOAL = (0, 230, 118)
     COLOR_PATH = (255, 245, 157)
+    COLOR_NOPATH = (239, 83, 80)
 
     mapW = mapCols * CELL_SIZE
     mapH = mapRows * CELL_SIZE
@@ -150,8 +151,15 @@ if __name__ == "__main__":
 
                             try:
                                 path = pf.make_path(start, goal)
-                                pathIdx = 1
-                                animating = True
+
+                                if len(path) > 0:
+                                    pathIdx = 1
+                                    animating = True
+                                else:
+                                    win.fill(COLOR_NOPATH, (startX, startY, INCELL_SIZE, INCELL_SIZE))
+                                    win.fill(COLOR_NOPATH, (goalX, goalY, INCELL_SIZE, INCELL_SIZE))
+                                    pygame.display.flip()
+
                             except:
                                 print("ERROR")
                         else:
