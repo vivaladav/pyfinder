@@ -2,6 +2,126 @@ import astar
 import pygame
 import sys
 
+class VisualTilemap:
+    """A 2D map made of tiles that can be rendered using pygame."""
+
+    def __init__(self, cellSize, win, map):
+        """
+        Parameters
+        ----------
+        cellSize : int
+            size of a cell of the map
+        win : pygame.Surface
+            target surface for rendering
+        map : list
+            map made of 0 and 1 representing walkable and unwalkable cells
+        """
+        self.SIZE_CELL = cellSize
+        self.SIZE_BORDER = 1
+        self.SIZE_INCELL = self.SIZE_CELL - (self.SIZE_BORDER * 2)
+
+        self.win = win
+        self.winW, self.winH = win.get_size()
+
+        self.map = map
+        self.mapRows = len(map)
+        self.mapCols = len(map[0])
+
+        self.mapW = self.mapCols * self.SIZE_CELL
+        self.mapH = self.mapRows * self.SIZE_CELL
+        self.mapX0 = int((self.winW - self.mapW) / 2)
+        self.mapY0 = int((self.winH - self.mapH) / 2)
+        self.mapX1 = self.mapX0 + self.mapW
+        self.mapY1 = self.mapY0 + self.mapH
+
+    def is_cell_walkable(self, cell):
+        """Check if a cell is walkable.
+
+        Parameters
+        ----------
+        cell : tuple
+            row, col that define a cell of the map
+
+        Returns
+        -------
+        bool
+            True if the cell is walkable, False otherwise
+        """
+        r, c = cell
+        return map[r][c] == 1
+
+    def is_point_inside(self, point):
+        """Check if a point is inside the map.
+
+        Parameters
+        ----------
+        point : tuple
+            x, y coordinates
+
+        Returns
+        -------
+        bool
+            True if the point is inside the map, False otherwise
+        """
+        x, y = point
+        return x > self.mapX0 and x < self.mapX1 and y > self.mapY0 and y < self.mapY1
+
+    def get_cell_from_point(self, point):
+        """Return the cell corresponding to a point in the map.
+
+        Parameters
+        ----------
+        point : tuple
+            x, y coordinates
+
+        Returns
+        -------
+        tuple
+            row, col that define a cell of the map
+        """
+        x, y = point
+        return (int((y - self.mapY0) / self.SIZE_CELL), int((x - self.mapX0) / self.SIZE_CELL))
+
+    def drawMap(self, colorBg, colorWalk, colorUnwalk):
+        """Draw the whole map, including background and all cells.
+
+        Parameters
+        ----------
+        colorBg : tuple
+            color to use for the background
+        colorWalk : tuple
+            color to use for all walkable cells
+        colorUnwalk : tuple
+            color to use for all unwalkable cells
+        """
+        win.fill(colorBg, (self.mapX0, self.mapY0, self.mapW, self.mapH))
+
+        for r in range(self.mapRows):
+            cellY = self.mapY0 + (r * self.SIZE_CELL) + self.SIZE_BORDER
+
+            for c in range(self.mapCols):
+                cellX = self.mapX0 + (c * self.SIZE_CELL) + self.SIZE_BORDER
+
+                if(map[r][c] == 1):
+                    win.fill(colorWalk, (cellX, cellY, self.SIZE_INCELL, self.SIZE_INCELL))
+                elif(map[r][c] == 0):
+                    win.fill(colorUnwalk, (cellX, cellY, self.SIZE_INCELL, self.SIZE_INCELL))
+
+    def drawCell(self, cell, color):
+        """Draw the inner part of a cell (no border).
+
+        Parameters
+        ----------
+        cell : tuple
+            row, col that define a cell of the map
+        colorBg : tuple
+            color to use for the cell
+        """
+        cellX = self.mapX0 + (cell[1] * self.SIZE_CELL) + self.SIZE_BORDER
+        cellY = self.mapY0 + (cell[0] * self.SIZE_CELL) + self.SIZE_BORDER
+
+        self.win.fill(color, (cellX, cellY, self.SIZE_INCELL, self.SIZE_INCELL))
+
 if __name__ == "__main__":
     argc = len(sys.argv)
 
@@ -35,10 +155,6 @@ if __name__ == "__main__":
             if(fdata[r][c] == '#'):
                 map[r][c] = 0
 
-    # get size of map
-    mapRows = len(map)
-    mapCols = len(map[0])
-
     # set up pygame
     pygame.init()
 
@@ -53,13 +169,10 @@ if __name__ == "__main__":
     print("Window size: {0}x{1}".format(winSize[0], winSize[1]))
 
     # render map
-    CELL_SIZE = 30
+    sizeCell = 30
     if argc == 3:
-        CELL_SIZE = int(sys.argv[2])
-    print("Cell size: {0}x{1}".format(CELL_SIZE, CELL_SIZE))
-
-    BORDER_SIZE = 1
-    INCELL_SIZE = CELL_SIZE - (BORDER_SIZE * 2)
+        sizeCell = int(sys.argv[2])
+    print("Cell size: {0}x{1}".format(sizeCell, sizeCell))
 
     COLOR_BG = (33, 33, 33)
     COLOR_WALK = (230, 230, 230)
@@ -69,38 +182,16 @@ if __name__ == "__main__":
     COLOR_PATH = (255, 245, 157)
     COLOR_NOPATH = (239, 83, 80)
 
-    mapW = mapCols * CELL_SIZE
-    mapH = mapRows * CELL_SIZE
-    mapX0 = int((winSize[0] - mapW) / 2)
-    mapY0 = int((winSize[1] - mapH) / 2)
-    mapX1 = mapX0 + mapW
-    mapY1 = mapY0 + mapH
+    vmap = VisualTilemap(sizeCell, win, map)
 
-    win.fill(COLOR_BG, (mapX0, mapY0, mapW, mapH))
-
-    for r in range(mapRows):
-        cellY = mapY0 + (r * CELL_SIZE) + BORDER_SIZE
-
-        for c in range(mapCols):
-            cellX = mapX0 + (c * CELL_SIZE) + BORDER_SIZE
-
-            col = (255, 0, 255)
-
-            if(map[r][c] == 1):
-                col = COLOR_WALK
-            elif(map[r][c] == 0):
-                col = COLOR_UNWALK
-
-            win.fill(col, (cellX, cellY, INCELL_SIZE, INCELL_SIZE))
-
+    vmap.drawMap(COLOR_BG, COLOR_WALK, COLOR_UNWALK)
     pygame.display.flip()
 
     # init scene
-    start = None
-    goal = None
-
     pf = astar.Pathfinder(map)
 
+    start = None
+    goal = None
     pathIdx = -1
     animating = False
     animCounter = 0
@@ -118,71 +209,62 @@ if __name__ == "__main__":
                 if animating:
                     continue
 
+                # left click
                 if event.button == 1:
-                    posX = event.pos[0]
-                    posY = event.pos[1]
-
-                    if posX < mapX0 or posX > mapX1 or posY < mapY0 or posY > mapY1:
+                    if not vmap.is_point_inside(event.pos):
                         continue
 
                     # set start
                     if start == None:
-                        start = (int((event.pos[1] - mapY0) / CELL_SIZE), int((event.pos[0] - mapX0) / CELL_SIZE))
+                        start = vmap.get_cell_from_point(event.pos)
 
-                        if map[start[0]][start[1]] == 1:
-                            startX = mapX0 + (start[1] * CELL_SIZE) + BORDER_SIZE
-                            startY = mapY0 + (start[0] * CELL_SIZE) + BORDER_SIZE
-
-                            win.fill(COLOR_START, (startX, startY, INCELL_SIZE, INCELL_SIZE))
+                        if vmap.is_cell_walkable(start):
+                            vmap.drawCell(start, COLOR_START)
                             pygame.display.flip()
                         else:
                             start = None
 
                     # set goal
                     elif goal == None:
-                        goal = (int((event.pos[1] - mapY0) / CELL_SIZE), int((event.pos[0] - mapX0) / CELL_SIZE))
+                        goal = vmap.get_cell_from_point(event.pos)
 
-                        if map[goal[0]][goal[1]] == 1 and start != goal:
-                            goalX = mapX0 + (goal[1] * CELL_SIZE) + BORDER_SIZE
-                            goalY = mapY0 + (goal[0] * CELL_SIZE) + BORDER_SIZE
-
-                            win.fill(COLOR_GOAL, (goalX, goalY, INCELL_SIZE, INCELL_SIZE))
-                            pygame.display.flip()
+                        if vmap.is_cell_walkable(goal) and start != goal:
+                            vmap.drawCell(goal, COLOR_GOAL)
 
                             try:
                                 path = pf.make_path(start, goal)
 
+                                # path found -> start animation
                                 if len(path) > 0:
                                     pathIdx = 1
                                     animating = True
+                                # no path found
                                 else:
-                                    win.fill(COLOR_NOPATH, (startX, startY, INCELL_SIZE, INCELL_SIZE))
-                                    win.fill(COLOR_NOPATH, (goalX, goalY, INCELL_SIZE, INCELL_SIZE))
-                                    pygame.display.flip()
+                                    vmap.drawCell(start, COLOR_NOPATH)
+                                    vmap.drawCell(goal, COLOR_NOPATH)
 
                             except:
                                 print("ERROR")
+
+                            pygame.display.flip()
                         else:
                             goal = None
 
                     # clear everything
                     else:
+                        if len(path) > 0:
+                            for cell in path:
+                                vmap.drawCell(cell, COLOR_WALK)
+                        else:
+                            vmap.drawCell(start, COLOR_WALK)
+                            vmap.drawCell(goal, COLOR_WALK)
+
+                        pygame.display.flip()
+
                         start = None
                         goal = None
                         pathIdx = -1
                         animCounter = 0
-
-                        if len(path) > 0:
-                            for cell in path:
-                                cellX = mapX0 + (cell[1] * CELL_SIZE) + BORDER_SIZE
-                                cellY = mapY0 + (cell[0] * CELL_SIZE) + BORDER_SIZE
-
-                                win.fill(COLOR_WALK, (cellX, cellY, INCELL_SIZE, INCELL_SIZE))
-                        else:
-                            win.fill(COLOR_WALK, (startX, startY, INCELL_SIZE, INCELL_SIZE))
-                            win.fill(COLOR_WALK, (goalX, goalY, INCELL_SIZE, INCELL_SIZE))
-
-                        pygame.display.flip()
 
             # window closed
             elif event.type == pygame.QUIT:
@@ -196,13 +278,11 @@ if __name__ == "__main__":
         # render
         if animating:
             if pathIdx > 0 and pathIdx < (len(path) - 1):
+                # poor man's animation skipping frames for fixed delay
                 if animCounter == FRAMES_TO_SKIP:
                     cell = path[pathIdx]
 
-                    cellX = mapX0 + (cell[1] * CELL_SIZE) + BORDER_SIZE
-                    cellY = mapY0 + (cell[0] * CELL_SIZE) + BORDER_SIZE
-
-                    win.fill(COLOR_PATH, (cellX, cellY, INCELL_SIZE, INCELL_SIZE))
+                    vmap.drawCell(cell, COLOR_PATH)
                     pygame.display.flip()
 
                     pathIdx += 1
