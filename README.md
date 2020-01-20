@@ -22,7 +22,16 @@ Done
 A visual application based on pygame.
 
 #### Current status
-under development
+Done
+
+#### Example of usage
+> $ python3 pg-pyfinder.py data/maps/map_01.map 60
+
+![example of usage of pg-pyfinder.py](https://github.com/vivaladav/pyfinder/blob/master/data/docs/imgs/pg-pyfinder-01.png?raw=true)
+
+Second parameter is optional and it defines the size of a cell of the map in pixels (default is 30).
+
+To search for a path simply click on the map twice. After a path is visualized click one more time to clear it. 
 
 ### qt-pyfinder.py
 A visual application based on Qt for Python.
