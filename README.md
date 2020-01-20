@@ -10,8 +10,7 @@ Because I am doing this for learning, I published this repository after the firs
 This is the first version of the pathfinder.
 It's a CLI (Command Line Interface) application that loads a map from a file passed as argument, then prompts the user for a start and a goal cell and finally shows the path.
 
-#### Current status
-Done
+**Current status:** Done
 
 #### Example of usage
 > $ python3 pyfinder.py data/maps/map_01.map
@@ -21,8 +20,7 @@ Done
 ### pg-pyfinder.py
 A visual application based on pygame.
 
-#### Current status
-Done
+**Current status:** Done
 
 #### Example of usage
 > $ python3 pg-pyfinder.py data/maps/map_01.map 60
@@ -36,8 +34,7 @@ To search for a path simply click on the map twice. After a path is visualized c
 ### qt-pyfinder.py
 A visual application based on Qt for Python.
 
-#### Current status
-TODO
+**Current status:** TODO
 
 ## Map format
 Currently a map is a text file which contains 2 possible symbols:
