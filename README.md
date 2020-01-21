@@ -34,7 +34,10 @@ To search for a path simply click on the map twice. After a path is visualized c
 ### qt-pyfinder.py
 A visual application based on Qt for Python.
 
-**Current status:** TODO
+**Current status:** under development
+
+#### Example of usage
+> $ python3 qt-pyfinder.py
 
 ## Map format
 Currently a map is a text file which contains 2 possible symbols:
