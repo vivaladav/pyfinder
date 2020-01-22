@@ -326,6 +326,7 @@ class DialogOptions(QDialog):
         layoutRow.addWidget(buttonCanc)
 
         buttonOK = QPushButton("OK")
+        buttonOK.setDefault(True)
         buttonOK.clicked.connect(self.accept)
         layoutRow.addWidget(buttonOK)
 
