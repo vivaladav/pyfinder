@@ -48,22 +48,31 @@ class Node:
 class Pathfinder:
     """Pathfinder that implements the A* search in a map."""
 
-    def __init__(self, map):
+    def __init__(self, map = None):
         """
         Parameters
         ----------
         map : list
             list containing sub-lists reprenting the rows of the map
         """
-        self.map = map
-        self.mapRows = len(map)
-        self.mapCols = len(map[0])
+        self.set_map(map)
+
         self.openList = []
         self.openMap = dict()
         self.closedMap = dict()
         self.goal = ()
         self.costHor = 10
         self.costDia = 14
+
+    def set_map(self, map):
+        self.map = map
+
+        if map != None:
+            self.mapRows = len(map)
+            self.mapCols = len(map[0])
+        else:
+            self.mapRows = 0
+            self.mapCols = 0
 
     def add_to_open(self, node, idx):
         """Add a node to the open list.
