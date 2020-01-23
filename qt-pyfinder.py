@@ -1,9 +1,22 @@
+import astar
+
 from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-import astar
+from enum import IntEnum, unique
 import sys
+
+@unique
+class Colors(IntEnum):
+    CELL_GOAL = 1
+    CELL_NOPATH = 2
+    CELL_PATH = 3
+    CELL_START = 4
+    CELL_UNWALK = 5
+    CELL_WALK = 6
+    MAP_BG = 7
+    SURF_BG = 8
 
 class QTilemap(QWidget):
     def __init__(self, parent = None):
@@ -19,7 +32,6 @@ class QTilemap(QWidget):
         self.mapX1 = 0
         self.mapY1 = 0
 
-
         self.pf = astar.Pathfinder()
         self.clear_path()
 
@@ -29,19 +41,19 @@ class QTilemap(QWidget):
 
         self.setAutoFillBackground(False)
 
-        self.colorSurf = QColor(0, 0, 0)
-        self.colorBg = QColor(33, 33, 33)
-        self.colorWalk = QColor(230, 230, 230)
-        self.colorUnwalk = QColor(99, 99, 99)
-        self.colorStart = QColor(41, 182, 246)
-        self.colorGoal = QColor(0, 230, 118)
-        self.colorPath = QColor(255, 245, 157)
-        self.colorNoPath = QColor(239, 83, 80)
+        self.colors = { Colors.CELL_GOAL : QColor(0, 230, 118), \
+                        Colors.CELL_NOPATH : QColor(239, 83, 80), \
+                        Colors.CELL_PATH : QColor(255, 245, 157), \
+                        Colors.CELL_START : QColor(41, 182, 246), \
+                        Colors.CELL_UNWALK : QColor(99, 99, 99), \
+                        Colors.CELL_WALK : QColor(230, 230, 230), \
+                        Colors.MAP_BG : QColor(33, 33, 33), \
+                        Colors.SURF_BG : QColor(0, 0, 0) }
 
         self.surfW = 1280
         self.surfH = 720
         self.surf = QImage(self.surfW, self.surfH, QImage.Format_RGB32)
-        self.surf.fill(self.colorSurf)
+        self.surf.fill(self.colors[Colors.SURF_BG])
 
         self.setFixedSize(self.surfW , self.surfH)
 
@@ -55,6 +67,16 @@ class QTilemap(QWidget):
 
         self.repaint()
 
+    def get_color(self, colorId):
+        if colorId in self.colors:
+            return self.colors[colorId]
+        else:
+            return QColor(255, 0, 255)
+
+    def set_color(self, colorId, color):
+        if colorId in self.colors:
+            self.colors[colorId] = color
+
     def paintEvent(self, event):
         self.painter.begin(self)
         self.painter.setPen(Qt.NoPen)
@@ -67,7 +89,7 @@ class QTilemap(QWidget):
             if self.animPathIdx > 0 and self.animPathIdx < (len(self.path) - 1):
                 cell = self.path[self.animPathIdx]
 
-                self.draw_cell(cell, self.colorPath)
+                self.draw_cell(cell, self.colors[Colors.CELL_PATH])
                 self.repaint()
 
                 self.animPathIdx += 1
@@ -122,13 +144,13 @@ class QTilemap(QWidget):
 
     def draw_map(self):
         # clear surface
-        self.surf.fill(self.colorSurf)
+        self.surf.fill(self.colors[Colors.SURF_BG])
 
         self.painter.begin(self.surf)
 
         # draw background
         self.painter.setPen(Qt.NoPen)
-        self.painter.setBrush(self.colorBg)
+        self.painter.setBrush(self.colors[Colors.MAP_BG])
         self.painter.drawRect(self.mapX0, self.mapY0, self.mapW, self.mapH)
 
         # draw cells
@@ -139,11 +161,11 @@ class QTilemap(QWidget):
                 cellX = self.mapX0 + (c * self.sizeCell) + self.sizeBorder
 
                 if(self.map[r][c] == 1):
-                    self.painter.setBrush(self.colorWalk)
+                    self.painter.setBrush(self.colors[Colors.CELL_WALK])
                 elif(self.map[r][c] == 0):
-                    self.painter.setBrush(self.colorUnwalk)
+                    self.painter.setBrush(self.colors[Colors.CELL_UNWALK])
                 else:
-                    self.painter.setBrush(self.colorBg)
+                    self.painter.setBrush(self.colors[Colors.MAP_BG])
 
                 self.painter.drawRect(cellX, cellY, self.sizeIncell, self.sizeIncell)
 
@@ -230,7 +252,7 @@ class QTilemap(QWidget):
             self.start = self.get_cell_from_point(event.pos())
 
             if self.is_cell_walkable(self.start):
-                self.draw_cell(self.start, self.colorStart)
+                self.draw_cell(self.start, self.colors[Colors.CELL_START])
                 self.repaint()
             else:
                 self.start = None
@@ -240,7 +262,7 @@ class QTilemap(QWidget):
             self.goal = self.get_cell_from_point(event.pos())
 
             if self.is_cell_walkable(self.goal) and self.start != self.goal:
-                self.draw_cell(self.goal, self.colorGoal)
+                self.draw_cell(self.goal, self.colors[Colors.CELL_GOAL])
 
                 try:
                     self.path = self.pf.make_path(self.start, self.goal)
@@ -252,8 +274,8 @@ class QTilemap(QWidget):
                         self.animTimer.start(self.animFrameTime)
                     # no path found
                     else:
-                        self.draw_cell(self.start, self.colorNoPath)
-                        self.draw_cell(self.goal, self.colorNoPath)
+                        self.draw_cell(self.start, self.colors[Colors.CELL_NOPATH])
+                        self.draw_cell(self.goal, self.colors[Colors.CELL_NOPATH])
                         self.repaint()
 
                 except Exception as ex:
@@ -267,11 +289,11 @@ class QTilemap(QWidget):
         else:
             if len(self.path) > 0:
                 for cell in self.path:
-                    self.draw_cell(cell, self.colorWalk)
+                    self.draw_cell(cell, self.colors[Colors.CELL_WALK])
 
             else:
-                self.draw_cell(self.start, self.colorWalk)
-                self.draw_cell(self.goal, self.colorWalk)
+                self.draw_cell(self.start, self.colors[Colors.CELL_WALK])
+                self.draw_cell(self.goal, self.colors[Colors.CELL_WALK])
 
             self.start = None
             self.goal = None
@@ -286,51 +308,101 @@ class DialogOptions(QDialog):
 
         self.setMinimumSize(300, 179)
 
-        layout = QGridLayout()
+        layout = QVBoxLayout()
         self.setLayout(layout)
 
-        row = 0
+        group = self.create_group_map()
+        layout.addWidget(group)
 
-        # cell size
-        label = QLabel("Cell size (in px):")
-        layout.addWidget(label, row, 0)
-
-        self.inputCell = QSpinBox()
-        self.inputCell.setRange(1, 100)
-        layout.addWidget(self.inputCell, row, 2)
-
-        row += 1
-
-        # anim speed
-        label = QLabel("Animation speed [1-10]:")
-        layout.addWidget(label, row, 0)
-
-        self.animSpeed = QSlider(Qt.Horizontal, self)
-        self.animSpeed.setMinimum(1)
-        self.animSpeed.setMaximum(10)
-        layout.addWidget(self.animSpeed, row, 2)
-
-        row += 1
+        self.colors = dict()
+        group = self.create_group_colors()
+        layout.addWidget(group)
 
         # spacer
         spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Expanding)
-        layout.addItem(spacer, row, 0, 1, 4)
+        layout.addItem(spacer)
 
-        row += 1
+        #row += 1
 
         # CANCEL, OK buttons
         layoutRow = QHBoxLayout()
 
         buttonCanc = QPushButton("CANCEL")
+        buttonCanc.setMaximumWidth(100)
         buttonCanc.clicked.connect(self.reject)
         layoutRow.addWidget(buttonCanc)
 
         buttonOK = QPushButton("OK")
         buttonOK.setDefault(True)
+        buttonOK.setMaximumWidth(100)
         buttonOK.clicked.connect(self.accept)
         layoutRow.addWidget(buttonOK)
 
-        layout.addLayout(layoutRow, row, 0, 1, 4)
+        layout.addLayout(layoutRow)
+
+    def create_group_map(self):
+        group = QGroupBox("Map")
+
+        layout = QGridLayout()
+        layout.setColumnMinimumWidth(0, 200)
+        group.setLayout(layout)
+
+        # CELL SIZE
+        label = QLabel("Cell size (in px):")
+        layout.addWidget(label, 0, 0)
+
+        self.inputCell = QSpinBox()
+        self.inputCell.setRange(1, 100)
+        layout.addWidget(self.inputCell, 0, 1)
+
+        # ANIMATION SPEED
+        label = QLabel("Animation speed:")
+        layout.addWidget(label, 1, 0)
+
+        self.animSpeed = QSlider(Qt.Horizontal, self)
+        self.animSpeed.setMinimum(1)
+        self.animSpeed.setMaximum(10)
+        layout.addWidget(self.animSpeed, 1, 1)
+
+        return group
+
+    def create_group_colors(self):
+        group = QGroupBox("Colors")
+
+        layout = QGridLayout()
+        layout.setColumnMinimumWidth(0, 200)
+        group.setLayout(layout)
+
+        strings = ["GOAL cell:", "NO PATH cell:", "PATH cell:", "START cell:", "UNWALKABLE cell:", "WALKABLE cell:", "MAP background:", "WINDOW background:",]
+        ids = list(Colors)
+
+        for row in range(len(Colors)):
+            self.create_color_row(strings[row], ids[row], layout, row)
+
+        return group
+
+    def create_color_row(self, text, colorId, layout, row):
+        label = QLabel(text)
+        layout.addWidget(label, row, 0)
+
+        button = ButtonColor(colorId)
+        button.clicked.connect(self.button_color_clicked)
+        layout.addWidget(button, row, 1, 1, 1, Qt.AlignRight)
+
+        self.colors[colorId] = button
+
+    def get_color(self, colorId):
+        if colorId in self.colors:
+            return self.colors[colorId].color
+        else:
+            return QColor(255, 0, 255)
+
+    def set_color(self, colorId, color):
+        if colorId not in self.colors:
+            return
+
+        button = self.colors[colorId]
+        button.set_color(color)
 
     def get_cell_size(self):
         return self.inputCell.value()
@@ -344,9 +416,34 @@ class DialogOptions(QDialog):
     def set_anim_speed(self, speed):
         self.animSpeed.setValue(speed)
 
+    @Slot()
+    def button_color_clicked(self, checked):
+        button = self.sender()
+
+        color = QColorDialog.getColor(button.color, self)
+
+        if color.isValid():
+            button.set_color(color)
+
+class ButtonColor(QPushButton):
+    def __init__(self, colorId, color = QColor(), parent = None):
+        super(ButtonColor, self).__init__(parent)
+
+        self.colorId = colorId
+        self.color = color
+
+        self.setFixedSize(32, 32)
+
+    def set_color(self, color):
+        self.color = color
+
+        pal = self.palette()
+        pal.setColor(QPalette.Button, color)
+        self.setPalette(pal)
+
 class MainWindow(QMainWindow):
-    def __init__(self):
-        super(MainWindow, self).__init__()
+    def __init__(self, parent = None):
+        super(MainWindow, self).__init__(parent)
 
         self.setWindowTitle("qt-pyfinder")
 
@@ -408,8 +505,13 @@ class MainWindow(QMainWindow):
 
     def openDialogOptions(self):
         self.dialogOpt = DialogOptions(self)
+
         self.dialogOpt.set_cell_size(self.widget.get_cell_size())
         self.dialogOpt.set_anim_speed(self.widget.get_anim_speed())
+
+        for colorId in Colors:
+            self.dialogOpt.set_color(colorId, self.widget.get_color(colorId))
+
         self.dialogOpt.finished.connect(self.dialogOptFinished)
 
         self.dialogOpt.open()
@@ -434,6 +536,13 @@ class MainWindow(QMainWindow):
 
         if animSpeed != self.widget.get_anim_speed():
             self.widget.set_anim_speed(animSpeed)
+
+        # colors
+        for colorId in Colors:
+            newColor = self.dialogOpt.get_color(colorId)
+
+            if self.widget.get_color(colorId) != newColor:
+                self.widget.set_color(colorId, newColor)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
