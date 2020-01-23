@@ -25,11 +25,17 @@ A visual application based on pygame.
 #### Example of usage
 > $ python3 pg-pyfinder.py data/maps/map_01.map 60
 
-![example of usage of pg-pyfinder.py](https://github.com/vivaladav/pyfinder/blob/master/data/docs/imgs/pg-pyfinder-01.png?raw=true)
-
 Second parameter is optional and it defines the size of a cell of the map in pixels (default is 30).
 
-To search for a path simply click on the map twice. After a path is visualized click one more time to clear it. 
+To search for a path simply click on the map twice.
+
+![example of usage of pg-pyfinder.py](https://github.com/vivaladav/pyfinder/blob/master/data/docs/imgs/pg-pyfinder-01.png?raw=true)
+
+After a path is visualized click one more time to clear it.
+
+In the following image you can see what happens when no path can be found:
+
+![example of pg-pyfinder when no path can be found](https://github.com/vivaladav/pyfinder/blob/master/data/docs/imgs/pg-pyfinder-02.png?raw=true)
 
 ### qt-pyfinder.py
 A visual application based on Qt for Python.
