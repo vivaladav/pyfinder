@@ -53,7 +53,7 @@ class QTilemap(QWidget):
         self.surfW = 1280
         self.surfH = 720
         self.surf = QImage(self.surfW, self.surfH, QImage.Format_RGB32)
-        self.surf.fill(self.colors[Colors.SURF_BG])
+        self.clear_surface()
 
         self.setFixedSize(self.surfW , self.surfH)
 
@@ -66,6 +66,9 @@ class QTilemap(QWidget):
         self.painter = QPainter()
 
         self.repaint()
+
+    def clear_surface(self):
+        self.surf.fill(self.colors[Colors.SURF_BG])
 
     def get_color(self, colorId):
         if colorId in self.colors:
@@ -521,15 +524,14 @@ class MainWindow(QMainWindow):
         if result != QDialog.Accepted:
             return
 
+        changed = False
+
         # update size cell
         sizeCell = self.dialogOpt.get_cell_size()
 
         if sizeCell != self.widget.get_cell_size():
+            changed = True
             self.widget.set_cell_size(sizeCell)
-
-            if self.widget.has_map():
-                self.widget.draw_map()
-                self.widget.repaint()
 
         # animation speed
         animSpeed = self.dialogOpt.get_anim_speed()
@@ -542,7 +544,19 @@ class MainWindow(QMainWindow):
             newColor = self.dialogOpt.get_color(colorId)
 
             if self.widget.get_color(colorId) != newColor:
+                changed = True
                 self.widget.set_color(colorId, newColor)
+
+        # redraw
+        if changed:
+            # redraw everything
+            if self.widget.has_map():
+                self.widget.draw_map()
+            # redraw window background only
+            else:
+                self.widget.clear_surface()
+
+            self.widget.repaint()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
