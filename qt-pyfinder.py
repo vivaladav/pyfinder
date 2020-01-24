@@ -9,14 +9,14 @@ import sys
 
 @unique
 class Colors(IntEnum):
-    CELL_GOAL = 1
-    CELL_NOPATH = 2
-    CELL_PATH = 3
-    CELL_START = 4
-    CELL_UNWALK = 5
-    CELL_WALK = 6
-    MAP_BG = 7
-    SURF_BG = 8
+    BG_MAP = 1
+    BG_SURF = 2
+    CELL_GOAL = 3
+    CELL_NOPATH = 4
+    CELL_PATH = 5
+    CELL_START = 6
+    CELL_UNWALK = 7
+    CELL_WALK = 8
 
 class QTilemap(QWidget):
     def __init__(self, parent = None):
@@ -41,14 +41,14 @@ class QTilemap(QWidget):
 
         self.setAutoFillBackground(False)
 
-        self.colors = { Colors.CELL_GOAL : QColor(0, 230, 118), \
+        self.colors = { Colors.BG_MAP : QColor(33, 33, 33), \
+                        Colors.BG_SURF : QColor(0, 0, 0), \
+                        Colors.CELL_GOAL : QColor(0, 230, 118), \
                         Colors.CELL_NOPATH : QColor(239, 83, 80), \
                         Colors.CELL_PATH : QColor(255, 245, 157), \
                         Colors.CELL_START : QColor(41, 182, 246), \
                         Colors.CELL_UNWALK : QColor(99, 99, 99), \
-                        Colors.CELL_WALK : QColor(230, 230, 230), \
-                        Colors.MAP_BG : QColor(33, 33, 33), \
-                        Colors.SURF_BG : QColor(0, 0, 0) }
+                        Colors.CELL_WALK : QColor(230, 230, 230) }
 
         self.surfW = 1280
         self.surfH = 720
@@ -68,7 +68,7 @@ class QTilemap(QWidget):
         self.repaint()
 
     def clear_surface(self):
-        self.surf.fill(self.colors[Colors.SURF_BG])
+        self.surf.fill(self.colors[Colors.BG_SURF])
 
     def get_color(self, colorId):
         if colorId in self.colors:
@@ -147,13 +147,13 @@ class QTilemap(QWidget):
 
     def draw_map(self):
         # clear surface
-        self.surf.fill(self.colors[Colors.SURF_BG])
+        self.surf.fill(self.colors[Colors.BG_SURF])
 
         self.painter.begin(self.surf)
 
         # draw background
         self.painter.setPen(Qt.NoPen)
-        self.painter.setBrush(self.colors[Colors.MAP_BG])
+        self.painter.setBrush(self.colors[Colors.BG_MAP])
         self.painter.drawRect(self.mapX0, self.mapY0, self.mapW, self.mapH)
 
         # draw cells
@@ -168,7 +168,7 @@ class QTilemap(QWidget):
                 elif(self.map[r][c] == 0):
                     self.painter.setBrush(self.colors[Colors.CELL_UNWALK])
                 else:
-                    self.painter.setBrush(self.colors[Colors.MAP_BG])
+                    self.painter.setBrush(self.colors[Colors.BG_MAP])
 
                 self.painter.drawRect(cellX, cellY, self.sizeIncell, self.sizeIncell)
 
@@ -376,7 +376,8 @@ class DialogOptions(QDialog):
         layout.setColumnMinimumWidth(0, 200)
         group.setLayout(layout)
 
-        strings = ["GOAL cell:", "NO PATH cell:", "PATH cell:", "START cell:", "UNWALKABLE cell:", "WALKABLE cell:", "MAP background:", "WINDOW background:",]
+        strings = [ "MAP background:", "WINDOW background:", "GOAL cell:", "NO PATH cell:",\
+                    "PATH cell:", "START cell:", "UNWALKABLE cell:", "WALKABLE cell:" ]
         ids = list(Colors)
 
         for row in range(len(Colors)):
