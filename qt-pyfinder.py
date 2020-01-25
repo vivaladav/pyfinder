@@ -9,6 +9,7 @@ import sys
 
 @unique
 class Colors(IntEnum):
+    """List of colors used to render the map."""
     BG_MAP = 1
     BG_SURF = 2
     CELL_GOAL = 3
@@ -19,6 +20,8 @@ class Colors(IntEnum):
     CELL_WALK = 8
 
 class QTilemap(QWidget):
+    """A 2D map made of tiles using Qt for rendering and input handling."""
+
     def __init__(self, parent = None):
         super(QTilemap, self).__init__(parent)
 
@@ -38,8 +41,6 @@ class QTilemap(QWidget):
         self.sizeCell = 30
         self.sizeBorder = 1
         self.sizeIncell = self.sizeCell - (self.sizeBorder * 2)
-
-        self.setAutoFillBackground(False)
 
         self.colors = { Colors.BG_MAP : QColor(33, 33, 33), \
                         Colors.BG_SURF : QColor(0, 0, 0), \
@@ -64,8 +65,6 @@ class QTilemap(QWidget):
         self.animTimer.timeout.connect(self.nextAnimFrame)
 
         self.painter = QPainter()
-
-        self.repaint()
 
     def clear_surface(self):
         self.surf.fill(self.colors[Colors.BG_SURF])
@@ -195,8 +194,6 @@ class QTilemap(QWidget):
 
         self.update_map_size()
 
-        self.clear_path()
-
     def get_cell_from_point(self, point):
         """Return the cell corresponding to a point in the map.
 
@@ -304,6 +301,8 @@ class QTilemap(QWidget):
             self.repaint()
 
 class DialogOptions(QDialog):
+    """Dialog that allows to set several options like cell size, animation speed and colors."""
+
     def __init__(self, parent = None):
         super(DialogOptions, self).__init__(parent)
 
@@ -324,8 +323,6 @@ class DialogOptions(QDialog):
         # spacer
         spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Expanding)
         layout.addItem(spacer)
-
-        #row += 1
 
         # CANCEL, OK buttons
         layoutRow = QHBoxLayout()
@@ -390,7 +387,6 @@ class DialogOptions(QDialog):
         layout.addWidget(label, row, 0)
 
         button = ButtonColor(colorId)
-        button.clicked.connect(self.button_color_clicked)
         layout.addWidget(button, row, 1, 1, 1, Qt.AlignRight)
 
         self.colors[colorId] = button
@@ -420,16 +416,9 @@ class DialogOptions(QDialog):
     def set_anim_speed(self, speed):
         self.animSpeed.setValue(speed)
 
-    @Slot()
-    def button_color_clicked(self, checked):
-        button = self.sender()
-
-        color = QColorDialog.getColor(button.color, self)
-
-        if color.isValid():
-            button.set_color(color)
-
 class ButtonColor(QPushButton):
+    """A button that can be used to show and set a color."""
+
     def __init__(self, colorId, color = QColor(), parent = None):
         super(ButtonColor, self).__init__(parent)
 
@@ -438,6 +427,8 @@ class ButtonColor(QPushButton):
 
         self.setFixedSize(32, 32)
 
+        self.clicked.connect(self.button_color_clicked)
+
     def set_color(self, color):
         self.color = color
 
@@ -445,7 +436,16 @@ class ButtonColor(QPushButton):
         pal.setColor(QPalette.Button, color)
         self.setPalette(pal)
 
+    @Slot()
+    def button_color_clicked(self, checked):
+        color = QColorDialog.getColor(self.color, self.parentWidget())
+
+        if color.isValid():
+            self.set_color(color)
+
 class MainWindow(QMainWindow):
+    """Main window of the application that contains the rendering surface and a menubar."""
+
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent)
 
@@ -477,6 +477,7 @@ class MainWindow(QMainWindow):
     def openDialogLoad(self):
         fileName, fil = QFileDialog.getOpenFileName(self, "Open Map", "data/maps/", "Map files (*.map)")
 
+        # have a file to load
         if len(fileName) > 0:
             with open(fileName, 'r') as f:
                 fdata = f.readlines()
@@ -552,6 +553,7 @@ class MainWindow(QMainWindow):
         if changed:
             # redraw everything
             if self.widget.has_map():
+                self.widget.clear_path()
                 self.widget.draw_map()
             # redraw window background only
             else:
