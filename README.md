@@ -45,6 +45,15 @@ A visual application based on Qt for Python.
 #### Example of usage
 > $ python3 qt-pyfinder.py
 
+After starting the application load a map from the menu *File > Open Map*:
+
+![qt-pyfinder.py file menu](https://github.com/vivaladav/pyfinder/blob/master/data/docs/imgs/qt-pyfinder-01.png?raw=true)
+
+It's possible to configure several options from the menu *File > Options*:
+
+![qt-pyfinder.py options dialog](https://github.com/vivaladav/pyfinder/blob/master/data/docs/imgs/qt-pyfinder-02.png?raw=true)
+
+
 ## Map format
 Currently a map is a text file which contains 2 possible symbols:
 - **' '** = walkable cell
