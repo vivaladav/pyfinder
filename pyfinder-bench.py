@@ -63,4 +63,8 @@ if __name__ == "__main__":
 
     t1 = time.clock_gettime(time.CLOCK_THREAD_CPUTIME_ID)
 
-    print("TIME: {:3.3} sec. to get {} paths".format((t1 - t0), numPaths))
+    benchTime = t1 - t0
+    avgPathTime = benchTime * 1000 / numPaths
+
+
+    print("TIME: {:3.3} sec. to find {} paths - average time per path: {:3.3} ms.".format(benchTime, numPaths, avgPathTime))
