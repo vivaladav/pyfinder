@@ -62,7 +62,7 @@ class QTilemap(QWidget):
         self.animPathIdx = 0
         self.animFrameTime = 100
         self.animTimer = QTimer(self)
-        self.animTimer.timeout.connect(self.nextAnimFrame)
+        self.animTimer.timeout.connect(self.next_anim_frame)
 
         self.painter = QPainter()
 
@@ -86,7 +86,7 @@ class QTilemap(QWidget):
         self.painter.drawImage(0, 0, self.surf)
         self.painter.end()
 
-    def nextAnimFrame(self):
+    def next_anim_frame(self):
         if self.animating:
             if self.animPathIdx > 0 and self.animPathIdx < (len(self.path) - 1):
                 cell = self.path[self.animPathIdx]
@@ -112,7 +112,7 @@ class QTilemap(QWidget):
         self.start = None
         self.goal = None
 
-    def setMap(self, map):
+    def set_map(self, map):
         self.map = map
 
         self.pf.set_map(map)
@@ -454,12 +454,12 @@ class MainWindow(QMainWindow):
         # -- File menu --
         self.menuFile = self.menuBar().addMenu("&File")
 
-        self.actOpen = QAction("&Open map", triggered = self.openDialogLoad)
+        self.actOpen = QAction("&Open map", triggered = self.open_dialog_load)
         self.menuFile.addAction(self.actOpen)
 
         self.menuFile.addSeparator()
 
-        self.actOpt = QAction("O&ptions", triggered = self.openDialogOptions)
+        self.actOpt = QAction("O&ptions", triggered = self.open_dialog_options)
         self.menuFile.addAction(self.actOpt)
 
         self.menuFile.addSeparator()
@@ -474,7 +474,7 @@ class MainWindow(QMainWindow):
         layout = self.layout()
         layout.setSizeConstraint(QLayout.SetFixedSize)
 
-    def openDialogLoad(self):
+    def open_dialog_load(self):
         fileName, fil = QFileDialog.getOpenFileName(self, "Open Map", "data/maps/", "Map files (*.map)")
 
         # have a file to load
@@ -504,11 +504,11 @@ class MainWindow(QMainWindow):
                     if fdata[r][c] == '#':
                         map[r][c] = 0
 
-            self.widget.setMap(map)
+            self.widget.set_map(map)
             self.widget.draw_map()
             self.widget.repaint()
 
-    def openDialogOptions(self):
+    def open_dialog_options(self):
         self.dialogOpt = DialogOptions(self)
 
         self.dialogOpt.set_cell_size(self.widget.get_cell_size())
@@ -517,12 +517,12 @@ class MainWindow(QMainWindow):
         for colorId in Colors:
             self.dialogOpt.set_color(colorId, self.widget.get_color(colorId))
 
-        self.dialogOpt.finished.connect(self.dialogOptFinished)
+        self.dialogOpt.finished.connect(self.dialog_opt_finished)
 
         self.dialogOpt.open()
 
     @Slot()
-    def dialogOptFinished(self, result):
+    def dialog_opt_finished(self, result):
         if result != QDialog.Accepted:
             return
 

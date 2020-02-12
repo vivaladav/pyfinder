@@ -82,7 +82,7 @@ class VisualTilemap:
         x, y = point
         return (int((y - self.mapY0) / self.SIZE_CELL), int((x - self.mapX0) / self.SIZE_CELL))
 
-    def drawMap(self, colorBg, colorWalk, colorUnwalk):
+    def draw_map(self, colorBg, colorWalk, colorUnwalk):
         """Draw the whole map, including background and all cells.
 
         Parameters
@@ -107,7 +107,7 @@ class VisualTilemap:
                 elif(map[r][c] == 0):
                     win.fill(colorUnwalk, (cellX, cellY, self.SIZE_INCELL, self.SIZE_INCELL))
 
-    def drawCell(self, cell, color):
+    def draw_cell(self, cell, color):
         """Draw the inner part of a cell (no border).
 
         Parameters
@@ -184,7 +184,7 @@ if __name__ == "__main__":
 
     vmap = VisualTilemap(sizeCell, win, map)
 
-    vmap.drawMap(COLOR_BG, COLOR_WALK, COLOR_UNWALK)
+    vmap.draw_map(COLOR_BG, COLOR_WALK, COLOR_UNWALK)
     pygame.display.flip()
 
     # init scene
@@ -219,7 +219,7 @@ if __name__ == "__main__":
                         start = vmap.get_cell_from_point(event.pos)
 
                         if vmap.is_cell_walkable(start):
-                            vmap.drawCell(start, COLOR_START)
+                            vmap.draw_cell(start, COLOR_START)
                             pygame.display.flip()
                         else:
                             start = None
@@ -229,7 +229,7 @@ if __name__ == "__main__":
                         goal = vmap.get_cell_from_point(event.pos)
 
                         if vmap.is_cell_walkable(goal) and start != goal:
-                            vmap.drawCell(goal, COLOR_GOAL)
+                            vmap.draw_cell(goal, COLOR_GOAL)
 
                             try:
                                 path = pf.make_path(start, goal)
@@ -240,8 +240,8 @@ if __name__ == "__main__":
                                     animating = True
                                 # no path found
                                 else:
-                                    vmap.drawCell(start, COLOR_NOPATH)
-                                    vmap.drawCell(goal, COLOR_NOPATH)
+                                    vmap.draw_cell(start, COLOR_NOPATH)
+                                    vmap.draw_cell(goal, COLOR_NOPATH)
 
                             except:
                                 print("ERROR")
@@ -254,10 +254,10 @@ if __name__ == "__main__":
                     else:
                         if len(path) > 0:
                             for cell in path:
-                                vmap.drawCell(cell, COLOR_WALK)
+                                vmap.draw_cell(cell, COLOR_WALK)
                         else:
-                            vmap.drawCell(start, COLOR_WALK)
-                            vmap.drawCell(goal, COLOR_WALK)
+                            vmap.draw_cell(start, COLOR_WALK)
+                            vmap.draw_cell(goal, COLOR_WALK)
 
                         pygame.display.flip()
 
@@ -282,7 +282,7 @@ if __name__ == "__main__":
                 if animCounter == FRAMES_TO_SKIP:
                     cell = path[pathIdx]
 
-                    vmap.drawCell(cell, COLOR_PATH)
+                    vmap.draw_cell(cell, COLOR_PATH)
                     pygame.display.flip()
 
                     pathIdx += 1
