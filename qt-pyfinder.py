@@ -24,6 +24,12 @@ class QTilemap(QWidget):
 
     def __init__(self, parent = None):
         super(QTilemap, self).__init__(parent)
+        """
+        Parameters
+        ----------
+        parent : QWidget
+            optional parent widget
+        """
 
         self.map = None
         self.mapRows = 0
@@ -67,19 +73,48 @@ class QTilemap(QWidget):
         self.painter = QPainter()
 
     def clear_surface(self):
+        """Clears the rendering area."""
         self.surf.fill(self.colors[Colors.BG_SURF])
 
     def get_color(self, colorId):
+        """Gets the RGB QColor associated to an ID.
+
+        Parameters
+        ----------
+        colorId : Colors
+            unique ID for a specific color.
+
+        Returns
+        -------
+        QColor
+            A color from the map of available colors.
+        """
         if colorId in self.colors:
             return self.colors[colorId]
         else:
             return QColor(255, 0, 255)
 
     def set_color(self, colorId, color):
+        """Sets the RGB QColor associated to an ID.
+
+        Parameters
+        ----------
+        colorId : Colors
+            unique ID for a specific color.
+        color : QColor
+            color to associate to the ID.
+        """
         if colorId in self.colors:
             self.colors[colorId] = color
 
     def paintEvent(self, event):
+        """Event emitted by Qt when rendering of the widget is needed.
+
+        Parameters
+        ----------
+        event : QEvent
+            Event data.
+        """
         self.painter.begin(self)
         self.painter.setPen(Qt.NoPen)
         self.painter.setBrush(Qt.NoBrush)
@@ -87,6 +122,7 @@ class QTilemap(QWidget):
         self.painter.end()
 
     def next_anim_frame(self):
+        """Handles a frame in the path animation."""
         if self.animating:
             if self.animPathIdx > 0 and self.animPathIdx < (len(self.path) - 1):
                 cell = self.path[self.animPathIdx]
@@ -101,18 +137,40 @@ class QTilemap(QWidget):
                 self.animPathIdx = 0
 
     def set_anim_speed(self, speed):
+        """Sets the speed of the path rendering animation.
+
+        Parameters
+        ----------
+        speed : int
+            Value in the range [1, 10]. Higher value means faster animation.
+        """
         if speed > 0 and speed < 11:
             self.animFrameTime = 500 / speed
 
     def get_anim_speed(self):
+        """Gets the animation speed. Higher value means faster animation.
+
+        Returns
+        -------
+        int
+            The animation speed as [1, 10] value.
+        """
         return 500 / self.animFrameTime
 
     def clear_path(self):
+        """Clears data used for handling the path."""
         self.path = []
         self.start = None
         self.goal = None
 
     def set_map(self, map):
+        """Sets the current map to process.
+
+        Parameters
+        ----------
+        map : list
+            Map made of 0 and 1 representing walkable and unwalkable cells.
+        """
         self.map = map
 
         self.pf.set_map(map)
@@ -145,6 +203,7 @@ class QTilemap(QWidget):
         return self.map[r][c] == 1
 
     def draw_map(self):
+        """"Draws the map in the widget, including the background."""
         # clear surface
         self.surf.fill(self.colors[Colors.BG_SURF])
 
@@ -174,6 +233,13 @@ class QTilemap(QWidget):
         self.painter.end()
 
     def draw_cell(self, cell, color):
+        """Draws a single cell inside the map.
+
+        Parameters
+        ----------
+        cell : tuple
+            row, col that define a cell of the map.
+        """
         r, c = cell
 
         cellX = self.mapX0 + (c * self.sizeCell) + self.sizeBorder
@@ -186,9 +252,23 @@ class QTilemap(QWidget):
         self.painter.end()
 
     def get_cell_size(self):
+        """Gets the size of a cell of the map.
+
+        Returns
+        -------
+        int
+            Size in pixel.
+        """
         return self.sizeCell
 
     def set_cell_size(self, size):
+        """Sets the size of a cell of the map.
+
+        Parameters
+        -------
+        size : int
+            Size in pixel.
+        """
         self.sizeCell = size
         self.sizeIncell = self.sizeCell - (self.sizeBorder * 2)
 
@@ -227,9 +307,17 @@ class QTilemap(QWidget):
         return x > self.mapX0 and x < self.mapX1 and y > self.mapY0 and y < self.mapY1
 
     def has_map(self):
+        """Checks if a map is assigned.
+
+        Returns
+        -------
+        bool
+            True if there's a map assigned, False otherwise.
+        """
         return self.map != None
 
     def update_map_size(self):
+        """Update the sizes in pixel of the map. Called after anything in the map is changed"""
         self.mapW = self.mapCols * self.sizeCell
         self.mapH = self.mapRows * self.sizeCell
         self.mapX0 = int((self.surfW - self.mapW) / 2)
@@ -238,6 +326,13 @@ class QTilemap(QWidget):
         self.mapY1 = self.mapY0 + self.mapH
 
     def mouseReleaseEvent(self, event):
+        """Event emitted by Qt when a mouse button is released.
+
+        Parameters
+        ----------
+        event : QEvent
+            Event data.
+        """
         if (event.button() != Qt.LeftButton):
             return
 
@@ -305,6 +400,12 @@ class DialogOptions(QDialog):
 
     def __init__(self, parent = None):
         super(DialogOptions, self).__init__(parent)
+        """
+        Parameters
+        ----------
+        parent : QWidget
+            optional parent widget
+        """
 
         self.setWindowTitle("Options")
 
@@ -341,6 +442,7 @@ class DialogOptions(QDialog):
         layout.addLayout(layoutRow)
 
     def create_group_map(self):
+        """Creates the group box containing widgets to handle map options."""
         group = QGroupBox("Map")
 
         layout = QGridLayout()
@@ -367,6 +469,7 @@ class DialogOptions(QDialog):
         return group
 
     def create_group_colors(self):
+        """Creates the group box containing widgets to handle color options."""
         group = QGroupBox("Colors")
 
         layout = QGridLayout()
@@ -383,6 +486,7 @@ class DialogOptions(QDialog):
         return group
 
     def create_color_row(self, text, colorId, layout, row):
+        """Creates a row of widgets part of the group of map options."""
         label = QLabel(text)
         layout.addWidget(label, row, 0)
 
@@ -392,12 +496,33 @@ class DialogOptions(QDialog):
         self.colors[colorId] = button
 
     def get_color(self, colorId):
+        """Gets the RGB QColor associated to an ID.
+
+        Parameters
+        ----------
+        colorId : Colors
+            unique ID for a specific color.
+
+        Returns
+        -------
+        QColor
+            A color from the map of available colors.
+        """
         if colorId in self.colors:
             return self.colors[colorId].color
         else:
             return QColor(255, 0, 255)
 
     def set_color(self, colorId, color):
+        """Sets the RGB QColor associated to an ID.
+
+        Parameters
+        ----------
+        colorId : Colors
+            unique ID for a specific color.
+        color : QColor
+            color to associate to the ID.
+        """
         if colorId not in self.colors:
             return
 
@@ -405,15 +530,43 @@ class DialogOptions(QDialog):
         button.set_color(color)
 
     def get_cell_size(self):
+        """Gets the size of a cell of the map.
+
+        Returns
+        -------
+        int
+            Size in pixel.
+        """
         return self.inputCell.value()
 
     def set_cell_size(self, size):
+        """Sets the size of a cell of the map.
+
+        Parameters
+        -------
+        size : int
+            Size in pixel.
+        """
         self.inputCell.setValue(size)
 
     def get_anim_speed(self):
+        """Gets the animation speed. Higher value means faster animation.
+
+        Returns
+        -------
+        int
+            The animation speed as [1, 10] value.
+        """
         return self.animSpeed.value()
 
     def set_anim_speed(self, speed):
+        """Sets the speed of the path rendering animation.
+
+        Parameters
+        ----------
+        speed : int
+            Value in the range [1, 10]. Higher value means faster animation.
+        """
         self.animSpeed.setValue(speed)
 
 class ButtonColor(QPushButton):
@@ -421,6 +574,16 @@ class ButtonColor(QPushButton):
 
     def __init__(self, colorId, color = QColor(), parent = None):
         super(ButtonColor, self).__init__(parent)
+        """
+        Parameters
+        ----------
+        colorId : Colors
+            ID associated to a specific color.
+        color : QColor
+            RGB color.
+        parent : QWidget
+            Optional parent of the button.
+        """
 
         self.colorId = colorId
         self.color = color
@@ -430,6 +593,13 @@ class ButtonColor(QPushButton):
         self.clicked.connect(self.button_color_clicked)
 
     def set_color(self, color):
+        """Sets the RGB QColor associated to the button
+
+        Parameters
+        ----------
+        color : QColor
+            color to associate.
+        """
         self.color = color
 
         pal = self.palette()
@@ -438,6 +608,13 @@ class ButtonColor(QPushButton):
 
     @Slot()
     def button_color_clicked(self, checked):
+        """Slot called when the button is clicked.
+
+        Parameters
+        ----------
+        checked : bool
+            Unused.
+        """
         color = QColorDialog.getColor(self.color, self.parentWidget())
 
         if color.isValid():
@@ -448,7 +625,12 @@ class MainWindow(QMainWindow):
 
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent)
-
+        """
+        Parameters
+        ----------
+        parent : QWidget
+            Optional parent of the window.
+        """
         self.setWindowTitle("qt-pyfinder")
 
         # -- File menu --
@@ -475,6 +657,7 @@ class MainWindow(QMainWindow):
         layout.setSizeConstraint(QLayout.SetFixedSize)
 
     def open_dialog_load(self):
+        """Creates and opens the file dialog to chose a map to load."""
         fileName, fil = QFileDialog.getOpenFileName(self, "Open Map", "data/maps/", "Map files (*.map)")
 
         # have a file to load
@@ -509,6 +692,7 @@ class MainWindow(QMainWindow):
             self.widget.repaint()
 
     def open_dialog_options(self):
+        """Creates and opens the options dialog."""
         self.dialogOpt = DialogOptions(self)
 
         self.dialogOpt.set_cell_size(self.widget.get_cell_size())
@@ -523,6 +707,13 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def dialog_opt_finished(self, result):
+        """
+
+        Parameters
+        ----------
+        result : QDialog.DialogCode
+            Flag that tells if the dialog has been accepted or rejected.
+        """
         if result != QDialog.Accepted:
             return
 
