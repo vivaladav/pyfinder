@@ -51,6 +51,16 @@ if __name__ == "__main__":
 
     numPaths = len(walkCells) * (len(walkCells) - 1)
 
+    # limit paths when above 50K or the benchmark will take forever
+    if numPaths > 50000:
+        oldNumPaths = numPaths
+        walkCells = walkCells[0 : 224]
+        numPaths = len(walkCells) * (len(walkCells) - 1)
+
+        print("Going to benchmark {} paths (out of {})...".format(numPaths, oldNumPaths))
+    else:
+        print("Going to benchmark {} paths...".format(numPaths))
+
     # benchmark map
     pf = astar.Pathfinder(map)
 
