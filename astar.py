@@ -120,7 +120,7 @@ class Pathfinder:
             cost of movement to the next cell
         """
         # if both deltas are 1 it's a diagonal cell
-        if((abs(dr) + abs(dc)) == 2 ):
+        if dr != 0 and dc != 0:
             return self.costDia
         else:
             return self.costHor
