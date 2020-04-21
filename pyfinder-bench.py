@@ -43,23 +43,23 @@ if __name__ == "__main__":
 
     # find walkable cells
     walkCells = []
+    cellsNeeded = 224
 
     for r in range(mapRows):
         for c in range(mapCols):
             if(map[r][c] == 1):
                 walkCells.append((r, c))
+                cellsNeeded = cellsNeeded - 1
+
+                if cellsNeeded == 0:
+                    break
+
+        if cellsNeeded == 0:
+            break
 
     numPaths = len(walkCells) * (len(walkCells) - 1)
 
-    # limit paths when above 50K or the benchmark will take forever
-    if numPaths > 50000:
-        oldNumPaths = numPaths
-        walkCells = walkCells[0 : 224]
-        numPaths = len(walkCells) * (len(walkCells) - 1)
-
-        print("Going to benchmark {} paths (out of {})...".format(numPaths, oldNumPaths))
-    else:
-        print("Going to benchmark {} paths...".format(numPaths))
+    print("Going to benchmark {} paths...\n".format(numPaths))
 
     # benchmark map
     pf = astar.Pathfinder(map)
@@ -77,4 +77,5 @@ if __name__ == "__main__":
     avgPathTime = benchTime * 1000 / numPaths
 
 
-    print("TIME: {:3.3} sec. to find {} paths - average time per path: {:3.3} ms.".format(benchTime, numPaths, avgPathTime))
+    print("{:3.3} sec. to find {} paths".format(benchTime, numPaths))
+    print("Average time per path: {:3.3} ms.\n".format(avgPathTime))
